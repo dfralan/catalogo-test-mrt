@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Pagination with Separators</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <style>
+        @page {
+
+            size: A5;
+            margin: 0;
+        }
+        body {
+          font-family: "Roboto", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .page {
+            width: 148mm;
+            height: 210mm;
+            box-sizing: border-box;
+            page-break-before: always;
+        }
+        .page:first-child {
+            page-break-before: auto;
+        }
+        .product-grid {
+          padding: 10mm;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .product {
+          padding-top: 20px;
+            width: calc(30% - 10px);
+            height: 45mm;
+            text-align: center;
+        }
+        .product img {
+            max-width: 100%;
+            height: 20mm;
+        }
+
+        .product p {
+            font-size: small;
+            font-weight: 400;
+            margin-left: 10px; /* Reduced margin */
+            margin-right: 10px; /* Reduced margin */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Show maximum of 2 lines */
+            -webkit-box-orient: vertical;
+        }
+        .pricefield {
+            content: '';
+            width: 60%;
+            margin-left: 20%;
+            height: 40px;
+            display: block;
+            margin-top: 5px;
+            border-radius: 10px; /* Placeholder size for writing prices */
+            background-color: #f2f2f2; /* Light gray color for the placeholder line */
+        }
+        .cover-page {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .cover-page img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="pages-container"></div>
+    <button onclick="window.print()">Print as PDF</button>
+
+    <script>
+        function toCamelCase(str) {
+  return str
+    .toLowerCase() // Convierte toda la cadena a minúsculas
+    .split(' ') // Divide la cadena en palabras
+    .map((word, index) => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ) // Convierte la primera letra de las palabras siguientes a mayúsculas
+    .join(' '); // Une las palabras
+}
+        const products = [
+  {
+    name: "TUQUERO DE VIDRIO ROK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-23-57-9866733043d54ea8cc16984490829418-640-0.webp"
+  },
+  {
+    name: "TUBO CON FILTRO SMOKING X 100",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tubo-con-filtro-smoking-x-100-03f3e30ef6544c161b16985080890318-640-0.webp"
+  },
+  {
+    name: "TUBO CON FILTRO SMOKING MENTHOL X 100",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tubo-con-filtro-smoking-menthol-x-100-096534b9eb865ceaff16985081154973-640-0.webp"
+  },
+  {
+    name: "TUBO CON FILTRO GIZEH X 200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/eb58ca9d-c1b8-4f9e-a022-3c0e4fa7-bc2e09469b8b37d4d3169845320768171-428bb351dc05612f1216984532113039-640-0.webp"
+  },
+  {
+    name: "TUBO CON FILTRO GIZEH MENTHOL X 100",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tubos-cliq-pw2-8457fd8b70da0d17d816984605405666-640-0.webp"
+  },
+  {
+    name: "TRIO CHECO PARA PIPA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_866099-mla46316410329_06-435d89a72034cd05bd16985139351520-640-0.webp"
+  },
+  {
+    name: "TIPS ZEUS MINI WHITE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-zeus-mini-white-9ee2d7a4cb461469a716985085393319-640-0.webp"
+  },
+  {
+    name: "TIPS ZEUS MINI PINK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-zeus-mini-pink-aaf500023ec1737ba016985081792729-640-0.webp"
+  },
+  {
+    name: "TIPS ZEUS MINI MULITCOLOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-53-57-991e7cfc9544c2c42916985084449249-640-0.webp"
+  },
+  {
+    name: "TIPS ZEUS MINI BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-52-34-1da06fe2c678e39e3516985083598255-640-0.webp"
+  },
+  {
+    name: "TIPS TONKING MINI BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-tonking-mini-837aae250d7a698a4f16985128036500-640-0.webp"
+  },
+  {
+    name: "TIPS TONKING MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-tonking-mini-32f10e21fa6816555816985127647316-640-0.webp"
+  },
+  {
+    name: "TIPS SMOKING DELUXE GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-35-47-66cf9f255d2c462f4416985073527443-640-0.webp"
+  },
+  {
+    name: "TIPS SMOKING BROWN GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-38-54-63d9245b56518db28f16985075399009-640-0.webp"
+  },
+  {
+    name: "TIPS ROK MINI WHITE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-14-57-06-c04b97434e6fc077b816985158564562-640-0.webp"
+  },
+  {
+    name: "TIPS ROK MINI PINK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtrosrokrosa_tomaco-10285376a8b48bc9d316984507974525-640-0.webp"
+  },
+  {
+    name: "TIPS ROK MINI DARK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-27-14-f021a7eb3f0c9af712169844956775551-dacf8854748781ee0d16984495764067-640-0.webp"
+  },
+  {
+    name: "TIPS ROK MINI BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/rok-mini-tips-pi-online-cc1ffb193a1a5d3b7f16984479264813-640-0.webp"
+  },
+  {
+    name: "TIPS RAW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tipswar-4067751be3c8c4735f16983837135345-640-0.webp"
+  },
+  {
+    name: "TIPS LION MINI SILVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-lion-mini-silver-bca332e4987be42d1d169851527443871-f3543800fe3be907a816985152848477-640-0.webp"
+  },
+  {
+    name: "TIPS LION MINI BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-lion-mini-brown-ee8641fbd2df74c2f816985150394345-640-0.webp"
+  },
+  {
+    name: "TIPS LION GRANDE SILVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-lion-grande-silver-0bcb9a7efb7f51c4c316985151246811-640-0.webp"
+  },
+  {
+    name: "TIPS LION GRANDE BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tips-lion-grande-brown-78d894ee41a14b950c16985151793448-640-0.webp"
+  },
+  {
+    name: "TABAQUERA SMOKING METAL CON PORTA SEDA 72mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaquera-smoking-metal-con-porta-seda-72mm-40c1ba972f3756956416985081030625-640-0.webp"
+  },
+  {
+    name: "TABAQUERA LATA RAW BLACK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaquera-lata-raw-black-1f2b6febb3d42c07ff16985107051241-640-0.webp"
+  },
+  {
+    name: "TABAQUERA LATA GIZEH",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lata-gizeh-black2_tomaco-bd122972781d2cb74b16984627773709-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-vainilla-4664fe10816be39b3e16984727601194-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF UVA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-uva-ce9a32c7601b46030f16984728505616-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF NATURAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-natural-f42baa35461ac6c05a169847277721931-850af7faf0116f5a2016984727848332-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF MENTA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-menta-199bd31483cdaf9f0316984728315018-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-chocolate-be74247c92ce8a9d8a16984727401595-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF CHERRY",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-cherry-5acf8dead99df601d3169847281683881-66af9305ed347950f116984728201713-640-0.webp"
+  },
+  {
+    name: "TABACO VAN KIFF AMERICAN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vankiff-american-blend-a67df373f7a6fb3da816984728633702-640-0.webp"
+  },
+  {
+    name: "TABACO VAN HAASEN VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/dsc_19241-b4920a684acac9126a1683-42b983335ec83211f6169851337751201-f73b3b5434d733bdb416985133881924-640-0.webp"
+  },
+  {
+    name: "TABACO VAN HAASEN ORIGINAL BLEND",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-van-haasen-original-blend-513ed99e3b1babc3a4169851360265211-5a2a655720962955a016985136065714-640-0.webp"
+  },
+  {
+    name: "TABACO VAN HAASEN NATIVO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vanhaasen-nativo-parainfernalia-6d77391e10379a6b1116985134068272-640-0.webp"
+  },
+  {
+    name: "TABACO VAN HAASEN MIDDLE BLEND",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/xfxbxkqhofebcotfvpeg_thumb_1dc71-1-af550e27265b4361e816985134730150-640-0.webp"
+  },
+  {
+    name: "TABACO VAN HAASEN INTENSE BLEND",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-van-haasen-intense-blend-2d21abae549ccad4b0169851359100841-44fe65ffe24253bbc216985135993743-640-0.webp"
+  },
+  {
+    name: "TABACO TACUARA X 100 GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/untitled-1-3d1d2da2d5ca6e81e616985334533933-640-0.webp"
+  },
+  {
+    name: "TABACO SUCESSO X40GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-14-23-58-27ce62c4033d4714a316985138456373-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Naranja",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanleyorange1-ecd754f52a15fe767-ddf855ae535835867f16984744032711-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Manzana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanleymanzana1-79cb6899843a9e21-ea6ecd10221c26a25b16984735293492-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Mango",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-stanley-mango-30gr-10284d08db1567805016984745281130-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Chocomenta",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanley-choc-400x400-da26530bf61f1869bd16984744875778-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Cherry",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/photoroom-20220210_155104-68b6b00f0435a9a5ab16984739660579-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Cafe",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanley_coffee1-bf60ac1bc38bece8a716984734749884-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY Banana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanleybanana1-8330234a0bf565092-51839b017d1e0e8702169847415064871-1ff51fc8d7ef74ea8d16984741541744-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 9 Natural",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/892220689621_mhbtoudkdgos_274107-bdc3b5b8c8b8ce8423169847418637881-cd7271dc259290e75f16984741931026-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 4 Menta",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanley-071-8f94b11883b2b9ed54169847358057781-40a97b399e91c1256716984735848232-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 3 Chocolate",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanleychoco1-d79f9f0a646e611e6a-ba3adc918930818527169847407650911-69453cfaac125a9d6716984740803917-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 22 Frambuesa y anana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-03-33-39-87000f8bc3d3d8f614169847484912851-55e9daff5e61b6a13916984748532565-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 2 Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanley-vainilla-30g-43085bdc73fb29fc3116984743748001-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 17 Uva",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/grappe-1-ae267d0e959f85534f169847427708391-66575db99178450bd416984742832499-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 16 Extra suave",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-stanley-extra-blond-pi-gr-22224797ddac8b0f7916984747278521-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 15 Doble vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/40347_1-79cd231388340ebff816984746798696-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 12 Citrus",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/stanley-citrus-3c7c30efa2d8cb7e06169847460295961-7cbceaacf83c8018a916984746073860-640-0.webp"
+  },
+  {
+    name: "TABACO STANLEY 1 Natural Blend",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/natural1-6987d81f0269a284af16025-3caf8224113117a71c16984747724720-640-0.webp"
+  },
+  {
+    name: "TABACO SAYRI SUAVE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-sayri-suave-2d6c624fc9ded0024e16985336789413-640-0.webp"
+  },
+  {
+    name: "TABACO SAYRI ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-sayri-original-c3eb8888e731c88cf816985336642111-640-0.webp"
+  },
+  {
+    name: "TABACO SAYRI NEGRO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-sayri-negro-b615663fea8458d10c169853365018371-261177d901f810923316985336538568-640-0.webp"
+  },
+  {
+    name: "TABACO SAYRI AMASADO NATIVO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-sayri-amasado-nativo-164878d36166c5e44f169853363459741-ee83a3fd24dfb9e9c916985336392063-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-vainilla-e5458538b5b627bf2416985265586785-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS MEZCLA BURLEY- VIRGINIA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-mezcla-burley-virginia-912419f69a433bd1d416985266966103-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS MENTA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-menta-71f972ff274b7ff2ab169852650366791-17ee7249f10fc7677f16985265433182-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-chocolate-f4cecfaaa74ad7e03c16985266106827-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS CAFE MOKA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-cafe-moka-a0eaa0424042184c4916985265941222-640-0.webp"
+  },
+  {
+    name: "TABACO SAINTS 100% VIRGINIA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-saints-100-virginia-59f0c61aa1b56b07b3169852657501271-23e9d3406c55d9293c16985265800664-640-0.webp"
+  },
+  {
+    name: "TABACO ROK (EXTRA SUAVE) PREMIUM",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-21-03-06-60c6f0c71609d140fb16984514021730-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD Uva",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/grape_redfield-arg_simulatie-pouch-cfde01d47c648a48ac16984725905526-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD Durazno",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/peach_redfield-arg_simulatie-pouch-ce72339b91356c7e4816984725398270-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD Chocomenta",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/chocomint_redfield-arg_simulatie-pouch-963b27004fe1119fd316984722611211-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD Chocolate",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choco_redfield-arg_simulatie-pouch-ccde38fa79d9f9cf32169847248699521-fe6bc60a7b87a69b2d16984724960469-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD Almendras",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/peach_redfield-arg_simulatie-pouch-93e7755629e38de3b016984724517882-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD 2 Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/vanilla_redfield-arg_simulatie-pouch-ff3b20210e3cb19e9d16984726522032-640-0.webp"
+  },
+  {
+    name: "TABACO RED FIELD 1 Natural",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/natural_redfield-arg_simulatie-pouch-af6bbb282bb1247b52169847262761691-e44aefafdc621b616616984726331193-640-0.webp"
+  },
+  {
+    name: "TABACO RAW BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-raw-brown-db838ed66137bf03a116985107224069-640-0.webp"
+  },
+  {
+    name: "TABACO PUEBLO SUAVE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pueblo-suave-5023bdebf4ae80ddaa169852955374931-1afbb46fc54962f27b16985295646845-640-0.webp"
+  },
+  {
+    name: "TABACO PUEBLO ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pueblo-original-d787bdcb36255cbd3c16985295413648-640-0.webp"
+  },
+  {
+    name: "TABACO PEPE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pepe-virginia-green-easy-3f5b2bc3eb1b389a7c16985339186862-640-0.webp"
+  },
+  {
+    name: "TABACO PACHAMAMA PURMA - FULL FLAVOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/45878-0d3c7cca074c74c1f716985132491205-640-0.webp"
+  },
+  {
+    name: "TABACO PACHAMAMA CUMBRE - MENTA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pachamama-cumbre-vai-300x300-eb40ccebccddfc95ec16985131287137-640-0.webp"
+  },
+  {
+    name: "TABACO PACHAMAMA APACHETA - VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pachamama-apacheta-30gr-417880650e355f9e5e16985131955740-640-0.webp"
+  },
+  {
+    name: "TABACO PACHAMAMA ANDINO - CLASICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pachamama-30g-pi-argentin-cccffa493d1b514eec16985131593942-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA W WHISKY",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-14-23-46-a04d839eecd80db5fa16985321772230-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA SAINTS VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7deaa76738f3cd7de9fa176e5520d91b-13d7f874ff033cb50716985267974464-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA SAINTS CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-saints-chocolate-ef5018d24f9ee15c5c16985267154786-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA SAINTS AMERICANO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-p_pipa-saints-americano-4083da4995c11f2bd216985266750656-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA R RON",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/671-home_default-083ff63730964d1a51169852716295121-050ebcb0df7b28e29716985271772030-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA GOLDEN V MIXTURE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/golden-vanilla1-18b9055f556c5113-b68608388cd0db567016985296521354-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA FIGHTER VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-fighter-vainilla-db05bfa71ca1ba5de116985270278044-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA FIGHTER MIEL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-fighter-miel-21cd9a246a42c0389f169852700164991-488d8b60432bc9853d16985270061970-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA FIGHTER DURAZNO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-fighter-durazno-07f4d961732197ac6016985270424320-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA FIGHTER CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-fighter-chocolate2-65f30c54be783e9ddd16985269880755-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA FIGHTER AROMATICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-ppipa-fighter-aromatico-3cdfee86ed6fe3866716985270158274-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA CAMAGUEY VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pzen37-c86fe65bf37782d9d216985300183433-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA CAMAGUEY CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-18-51-44-bf355181689267b86816985299516747-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA CAMAGUEY AMERICANO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pzen35-42153c72e01c411e9316985300689711-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA BLACK V MIXTURE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/danish-black-vanilla-40-grs-600-579e43e455df67262616985301544098-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA ARGENTO N6 Latakia",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-19-43-17-2b1bdcabd6023e28b416984466728759-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA ARGENTO N3 Natural",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-19-51-19-1d36fd22e32b640fd9169844712744311-28e0c840eba5ff7d4d16984471674740-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA ARGENTO N2 Whisky/choco",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco_079-1-b6baeaac49c18e357b16984462954177-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA ARGENTO N1 Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-19-45-19-1-6aae6950e1ddb9261516984468251163-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA ARGENTO DUO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-19-57-16-1-3137949c9a9a8d2e8216984475169318-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA AMPHORA FULL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/amphora-full-aroma1-0aa6c8d8dbbd-89c36625dc78b0ad3216985302138143-640-0.webp"
+  },
+  {
+    name: "TABACO P/PIPA AMARELO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-14-23-46-8b8b9ff56c52fa05f516985302719130-640-0.webp"
+  },
+  {
+    name: "TABACO P/NARGUILE ZOMO X 50GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-pnarguile-zomo-x-50grdssd-42450c3db13a0a337d16986729570025-640-0.webp"
+  },
+  {
+    name: "TABACO MY LEAF TODOS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-19-03-52-1c819a0507dadfb4c216985306474616-640-0.webp"
+  },
+  {
+    name: "TABACO MORO YELLOW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/e88c4cf3936af6bc8ba19fc82b3f3840-4e22c250014f644f6d16984730618018-640-0.webp"
+  },
+  {
+    name: "TABACO MORO MANGO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/whatsapp-image-2020-10-13-at-11-1d6ec474b4109d15e5169847317370771-14aeb624c34b84eada16984731808851-640-0.webp"
+  },
+  {
+    name: "TABACO MORO GREEN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/6f499e7621128b6ecbd18337b1c49133-621d6ae116d3b6d67516984732409690-640-0.webp"
+  },
+  {
+    name: "TABACO MANITOU ORGANICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-manitou-organico-31571d494fa40f9d7416985307869667-640-0.webp"
+  },
+  {
+    name: "TABACO MANITOU N8 ORIGINAL BLEND",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-manitou-virginia-gold-30g-1a8d0857585788bcd116985308000595-640-0.webp"
+  },
+  {
+    name: "TABACO LUCKIES ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-luckies-original-00cbca47f83393343916985317256018-640-0.webp"
+  },
+  {
+    name: "TABACO LUCKIES GALPAO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-luckies-galpao-e8343902703804beb216985317369837-640-0.webp"
+  },
+  {
+    name: "TABACO LAS HOJAS PREMIUM VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lh-30-vainilla-13a55f52bf7c4efde916985318979083-640-0.webp"
+  },
+  {
+    name: "TABACO LAS HOJAS PREMIUM UVA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lh-30-uva-e4f3dc3d537b1679b216985319228107-640-0.webp"
+  },
+  {
+    name: "TABACO LAS HOJAS PREMIUM CLASICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lh-30-natural-088659beabb6b6a86a16985320051150-640-0.webp"
+  },
+  {
+    name: "TABACO LAS HOJAS PREMIUM CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lh-30-chocolate-ed09ef6104bca0e91916985319528601-640-0.webp"
+  },
+  {
+    name: "TABACO LAS HOJAS CLASICO x 50gr",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/lh-50-790b45112bfc24d8b516985320472234-640-0.webp"
+  },
+  {
+    name: "TABACO JBR VAINILLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-jbr-vainilla-pi-smokeshop-e7882991ea7485184e16985292387455-640-0.webp"
+  },
+  {
+    name: "TABACO JBR TWO APPLE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-jbr-two-apple-0dfc7f18f5a953c18016985288409394-640-0.webp"
+  },
+  {
+    name: "TABACO JBR ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-jbr-original-1f0cce127b99720e3616985291089323-640-0.webp"
+  },
+  {
+    name: "TABACO JBR CHOCOLATE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/3334-tabaco-jbr-chocolate-30g1-8-d9ffaefd3e523fe4f616985292037769-640-0.webp"
+  },
+  {
+    name: "TABACO JBR BLUEBERRY MINT",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-jbr-blueberry-mint-72e1306feda97721ad16985290536889-640-0.webp"
+  },
+  {
+    name: "TABACO GOLDEN VIRGINA YELLOW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/golden-virginia-suave-09b14252cc2fdad08816985298003604-640-0.webp"
+  },
+  {
+    name: "TABACO GOLDEN VIRGINA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-golden-virgina-50f81379ff5a9439ba169852969750761-27c5e26e7247375c8516985297044377-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA YELLOW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pflan10-f841bf3670c717392916984752234082-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA VIRGINIA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/virginia-1-fe9f67cf1585cfbb8316984751659353-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA SILVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/don-juan-tabaco-flandria-silver-40c32a3c3286fb2a5a16984752516863-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA SAUVAGE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/don-juan-tabaco-flandria-sauvage-39d2858bba81ce36b816984753651622-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pflan061-71da8545407225c91115675-9978f742ee322e458416984753148941-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA NEGRO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pflan041-72e540f2c7f05b341615675-b39ab9bd545ff00af816984753418945-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA GOLD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pflan16-998fd59bdef9aac1f316984751960520-640-0.webp"
+  },
+  {
+    name: "TABACO FLANDRIA ECO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pflan121-d639028e9246f4b06c15675-54ede410376d52c80e16984752808201-640-0.webp"
+  },
+  {
+    name: "TABACO DRUM ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/drum_original_tobacco-26983c1e5e8117db5216985322963015-640-0.webp"
+  },
+  {
+    name: "TABACO DON JOSE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-20-07-33-72b97bc2433b5d4602169853445972071-1380ace06f554201aa16985344662000-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #35 Maracuya",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice-35-maracuya-ff56aa40cd739a526216984712045279-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #34 Ruibarbo/apio",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice-34-rhubarb-80d02d65a2451ae7d816984717815738-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #33 Caramelo y Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice-33-kir-royal-991759578fe3b9cfa216984721282114-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #32 Anana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice32-hawaii-2a7c836a58433bb25e16984714628776-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #31 Naranja y chocolate",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice31-dark_amber-e3a3bf9f86fb09fc2916984720662941-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #30 Red bull/guarana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice30-booster-8227448827eb13c74716984721032462-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #251 Doble menta",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice251-double-ice-b1bbfa821f1203aa3416984716850740-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #25 Mango",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice25-manga-34d9af45e4ea0eeb7116984713307387-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #24 Cafe Rum",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice24-jamaican-2b4f27ff0fe76b6a5e16984717449803-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #237 Doble cherry",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice237-double-supreme-b0effdbcf94757a8e416984718818138-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #225 Doble vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice225-double-classic-7a79b84ac6163c8fb616984717113408-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #210 Doble manzana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice210-double-appeal-cffaf9ff025ab0f3bc16984718517135-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #20 Marula",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice20-mature-516b23f56b9883ee13169847149458821-24bd626727e2b90a1316984715011168-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #16 Chocolate",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice16-dark-55634987ae5e19091b16984714246986-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #15 Cool mint",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice15-cool-cd44e684e2020f484c16984718212060-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #12 Manzana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice12-appeal-942e56758ab422022d16984711674848-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #09 Cafe",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice20-mature-b6929ab567e710bdde169847152678431-55769ee295ff5c5ccd16984715326214-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #07 Uva",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice07-ripe-3f09c51a83731d7c5f16984713813841-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #06 Exotico",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice06-exotic-9e68f3af7698a5efc316984712436209-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #05 Aromatic",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice05-absolute-5c962fad86423fac9b16984715678611-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #03 Cherry",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice03-supreme-a7db059b3dd658af4f16984711162098-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #02 Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice02-classic-1cefa686d2928e495216984715933762-640-0.webp"
+  },
+  {
+    name: "TABACO CHOICE #01 Original",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/choice01-original-f9949a1086118eeeb616984716287512-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO YELLOW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-19-39-51-4036b92433f146624816985327979264-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO UVA MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-cerrito-uva-mix-0ea65c7f817a90953116985328673369-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cerrito-natural-e15f308ae2418574f416985325055612-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO NEGRO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-cerrito-negro-3cc6cc5c196ac83dd316985327706768-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO NATURAL/SILVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-cerrito-natural-c388c61ddaacb03f6916985328538356-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO CAFE MOKA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cerrito-cafe-moka-x45gr-3e6dd7fcf0eaed9d7516985328312916-640-0.webp"
+  },
+  {
+    name: "TABACO CERRITO BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabaco-cerrito-brown-32816a023a906db53a169853275638911-92b366c24aa6bb022d16985327630512-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO#58 Menta",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-menta-3567945e2cfe5503ae16984445524626-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO#57 Cherry",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-cherry-47c644310c3eb8963a16984456679459-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #59 Uva",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-uva-8f0253b86a4ce66e3616984445918194-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #56 Cafe a la Crema",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-19-47-50-cc358add1136469ea416984470006546-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #55 Chocolate",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-chocolate-5dadf6e65bf3c946d816984446206106-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #54 Vainilla",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-vainilla-2b92e91c54a9ea908916984444992998-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #53 Negro",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-negro-ce48be2397c6b6081816984453260785-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #52 Manzana",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-manzana-1424cbf004afc01c0016984445299394-640-0.webp"
+  },
+  {
+    name: "TABACO ARGENTO #51 Natural",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/copia-de-paquete-natural-391726874fe0ea5cad16984439646268-640-0.webp"
+  },
+  {
+    name: "TABACO AMADEUS X30GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tabacoamadeus1-1171a2e58bd89e3e2-e3851aa4101083503f16985329533307-640-0.webp"
+  },
+  {
+    name: "TABACO ACHALAY VAINILLA X 40GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/achalay-vainilla-aa3b41aa16458f19c616985332027465-640-0.webp"
+  },
+  {
+    name: "TABACO ACHALAY MENTA X40GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/achalay-menta-d221491a679931f179169853318807371-1a42b71061136c0a1716985332061003-640-0.webp"
+  },
+  {
+    name: "TABACO ACHALAY CLASICO X40GR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/achalay-ec6c0c3d25876ed03316985331761721-640-0.webp"
+  },
+  {
+    name: "TABACO 4 LEGUAS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cuatroleguasmocaccino1-24b8f811c-c3f5b64749aaefe7c816985338506788-640-0.webp"
+  },
+  {
+    name: "SAUVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/sauver-9a0e30a21fc61cb20216989371680068-640-0.webp"
+  },
+  {
+    name: "ROLLING KIT LIBELLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-30-at-12-48-49-8379361afe2a57be0e16986809474560-640-0.webp"
+  },
+  {
+    name: "REPUESTO MINIFUSOR PAR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/repuesto-minifusor-par-4731278dba132df74116989380936517-640-0.webp"
+  },
+  {
+    name: "PUNTANITO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/puntanitos-0c4b3bf11f017c6e0e169838377079551-e79d214955f8c8f31c16983837786655-640-0.webp"
+  },
+  {
+    name: "PIPA ATOMIC BOLA 8",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/atomic-bola-8-7c5268c2ae56c6c55c169902307879141-235cfcc47d62ee9e2f16990231213371-640-0.webp"
+  },
+  {
+    name: "PIEDRA ZIPPO X 6",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-29-51-ecd4df4c3057f4d7f016985069966114-640-0.webp"
+  },
+  {
+    name: "PICADOR TAINER MR TABACO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/picadormediano3_tomaco-62abae4d1fdf3618cd16990229666219-640-0.webp"
+  },
+  {
+    name: "PICADOR POKEBOLA 3 PARTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_655135-mla47603295302_09-2d726dde88c096e2bf16990276783596-640-0.webp"
+  },
+  {
+    name: "PICADOR PLASTICO ATOMIC CHALERO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/picadoracrilicoatomic4p_tomaco-1e4ec5160c8a27cbf216990277247271-640-0.webp"
+  },
+  {
+    name: "PICADOR PLASTICO 3RAYOS COLORES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/picador-plastico-3rayos-colores-e32ce5015f4c2e261316986718303987-640-0.webp"
+  },
+  {
+    name: "PICADOR METAL SQUADAFUM GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_2x_604018-mla51017855257-00e8f948a53e415669169902649158161-4c2c4c5373b2fc4be716990268541331-640-0.webp"
+  },
+  {
+    name: "PICADOR METAL SQUADAFUM CHICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/picador-squadafum-aluminio-art-e-3933c8959fb8cd65b916990262801199-640-0.webp"
+  },
+  {
+    name: "PICADOR METAL BOMBO LISO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_914579-mla46204592089_05-dcab05ecc3f346ef7c16990277781004-640-0.webp"
+  },
+  {
+    name: "PICADOR LION TAINER PLASTICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/picador-lion-tainer-plasticod-6cdb549be3e0b7a58f169851509043081-8bd480f36e5c3b6da916985150989081-640-0.webp"
+  },
+  {
+    name: "PICADOR ATOMIC ACRILICO GIGANTE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_722210-mla49594663735_04-65d6565b15adecd01116990278251038-640-0.webp"
+  },
+  {
+    name: "PAPEL ZEUS ULTRA THIN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-zeus-ultra-thin-72a9c11feea8a19b9116985083028969-640-0.webp"
+  },
+  {
+    name: "PAPEL ZEUS PINK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-zeus-pink-c3e0068d2f56e93b24169850841526641-25a2f2e4f34d6e535416985084420801-640-0.webp"
+  },
+  {
+    name: "PAPEL ZEUS BLACK EDITION",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-zeus-black-edition-4ddfd298abd96d78a516985084011225-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING RED CORTO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-red-corto-91708961deebd1d97716985076950867-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING RED",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-red-01306ccf174d8c72e916985075938707-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING ORGANICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-organico-c2136c5f9f5c6cff5d16985076826069-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING ORANGE CORTO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-orange-corto-12f87019c45e34089416985077838569-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING MASTER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-master-59b65282982bc2adb916985077702429-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING GREEN PURE HEMP",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/smokinggreenregular12270mm1-c593-804c8b2b46f9da9aea16986825382039-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING ECO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/eco-f9b3400b04e92e4e9017016935221215-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING DELUXE X 300",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-deluxe-x-300-596eea948736151eba16985079492254-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING DELUXE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-deluxe-f06a13aaeb765b8d90169850772542271-bbe9bddfdbf19cf1ba16985077287170-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING BROWN X 300",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-44-20-1da4a9c64f5552a3d416985078694527-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING BROWN CORTO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-brown-corto-c5c431b525829cc16e16985077567560-640-0.webp"
+  },
+  {
+    name: "PAPEL SMOKING BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-smoking-brown-ebbb7f35e80d8d857a16985078027445-640-0.webp"
+  },
+  {
+    name: "PAPEL RIPS SABORIZADO EN ROLLO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_2x_737076-mla27888958829-1-367e4927da6334083016990279171596-640-0.webp"
+  },
+  {
+    name: "PAPEL RAW ORGANICO BLACK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-raw-organico-black-fa7c428098eab9170016985108313545-640-0.webp"
+  },
+  {
+    name: "PAPEL RAW organico 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-raw-organico-78mm-38c0690e78e7a22a9116985106797637-640-0.webp"
+  },
+  {
+    name: "PAPEL RAW CLASICO BLACK KING SIZE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-raw-clasico-black-king-size-1641e0762038b0b12016985106645866-640-0.webp"
+  },
+  {
+    name: "PAPEL RAW CLASICO BLACK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-raw-clasico-black-18af44e89ee5b86a41169851084920011-ba6c517b08348caa4116985108796685-640-0.webp"
+  },
+  {
+    name: "PAPEL RAW CLASICO 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-raw-clasico-78mm-9ce2bfa0b4b4b4fcd2169851077785141-783ee64d76a713b90316985108004958-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB X - PERT 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-x-pert-78mm-dffa61e0a7fb73689016990283004114-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB VIRGEN 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-virgen-78mm-2e80f05f02614a82bb16990282474093-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB PREMIUM 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-premium-78mm-90c8ace3127711fb2816990282615583-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB ORGANICO 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-organico-78mm-e5d8f47e7dc90ae45816990282737529-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB BLANCO 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-blanco-78mm-25ac4f9518e162cc12169902828635101-a4a8307f66f0e4743616990283518209-640-0.webp"
+  },
+  {
+    name: "PAPEL OCB BAMBOO 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-ocb-bamboo-78mm-23acaeb36b3b1b168816990282355334-640-0.webp"
+  },
+  {
+    name: "PAPEL MANTRA SABORIZADO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-mantra-saborizado-bfdfc1cee3176b1c4b16990285243753-640-0.webp"
+  },
+  {
+    name: "PAPEL LION SILVER 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-lion-silver-78mm-69ae7e6ae5d5176d4b16985151652908-640-0.webp"
+  },
+  {
+    name: "PAPEL LION SABORIZADO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-lion-saborizado-8144199772b636065416985153134840-640-0.webp"
+  },
+  {
+    name: "PAPEL LION BROWN 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-lion-brown-78mm-5632160e5aeeca585416985154163430-640-0.webp"
+  },
+  {
+    name: "PAPEL LION ALFALFA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-lion-alfalfa-73c797d1454fb05ec916985151514342-640-0.webp"
+  },
+  {
+    name: "PAPEL LIBELLA VINTAGE (VERDE) CORTO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_short_cut_corners_bila-a5c5670d3971402415169868167018491-3221726930ae6a2b5d16986817783951-640-0.webp"
+  },
+  {
+    name: "PAPEL LIBELLA PURE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pre-4ea81def6692e75bb616986805864011-640-0.webp"
+  },
+  {
+    name: "PAPEL LIBELLA NEGRO CORTO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_single_roll_bile-1-e936a782e82d0cfd2b16986811058301-640-0.webp"
+  },
+  {
+    name: "PAPEL LIBELLA NEGRO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_single_roll_bile-07511250f8c319c2ca16986810128129-640-0.webp"
+  },
+  {
+    name: "PAPEL LIBELLA HAVANA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_114_havana_bily-c89a20eeb7124d478816986810585175-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH RED",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-40-07-27be1b9f3ceecc617f16984680356654-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH PURE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-43-30-e670097c42f0e19b3f16984682411178-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH PINK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-02-06-36-1-b75621e6523edc1f2016984696357753-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH EXTRA FINO VERDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-53-10-89e4e599dd4fa7780c16984688258659-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH EXTRA FINO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-45-41-d89ad3519c304da882169846836372741-270219ea88a167a81116984683819676-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH CORTO DOBLE VENTANA VERDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/8e4238b3-f570-44b9-9dd2-51a9ebac-ceb48e7bc54abd2e5c16984697932439-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH CORTO DOBLE VENTANA AZUL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/doble-ventana-adbc49150619a4576016984697380289-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH BROWN",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-55-46-91ce2f5d7fd0985cb916984689756078-640-0.webp"
+  },
+  {
+    name: "PAPEL GIZEH 420 EDICION LIMITADA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-56-41-e52f56f25a5221368316984690190520-640-0.webp"
+  },
+  {
+    name: "PAPEL ALUMINIO PARA NARGUILE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-aluminio-para-narguile-f71bbaab1cacd9e1e816990286229352-640-0.webp"
+  },
+  {
+    name: "PAPEL ABADIE X 500",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/papel-abadie-x-500-6993193327f4502ae116990287222801-640-0.webp"
+  },
+  {
+    name: "MECHA ZIPPO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/mecha-zippo-ded166ea6df8e76e8f169850567645461-0b43bd1b1fc13700b316985057101426-640-0.webp"
+  },
+  {
+    name: "MAQUINA PARA TUBOS SMOKING",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/maquina-para-tubos-smoking-721826827a045e50b5169850764071901-de6de6b1e5e1b8bcc916985076573920-640-0.webp"
+  },
+  {
+    name: "GAS CLAER P/ENCENDEDOR 400CC",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/gas-claer-pencendedor-400cc-65a79636af9ff1a23a16990288315102-640-0.webp"
+  },
+  {
+    name: "GAS CLAER P/ENCENDEDOR 160CC",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-13-26-57-2a9f8fdfbe4b2688ac16990288463902-640-0.webp"
+  },
+  {
+    name: "FILTROS TUQUEROS420 REUTILIZABLES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-13-28-13-cf6eb5cf351772587316990289165533-640-0.webp"
+  },
+  {
+    name: "FILTRO SMOKING SLIM X180",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-smoking-slim-x180-0d690ef5aec66536f316985077082591-640-0.webp"
+  },
+  {
+    name: "FILTRO SMOKING SLIM MENTHOL X120",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-47-03-23aaa51c866f271e0616985080299510-640-0.webp"
+  },
+  {
+    name: "FILTRO SMOKING SLIM LONG X120",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-smoking-slim-long-x120-d2a241bc350c06a85e16985078345866-640-0.webp"
+  },
+  {
+    name: "FILTRO SMOKING SLIM BROWN X150",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-smoking-slim-brown-x150-3e806c847169e17a8a16985079190735-640-0.webp"
+  },
+  {
+    name: "FILTRO SMOKING REGULAR X120",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-smoking-regular-x120-1959ee3d18c18bc2ea16985076666765-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA SLIM X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_slim_200_bile-32b8bf7f9c131bb5a216986805345760-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA SLIM MENTA X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtry_mint_slim_long_200_bile_p-1-3fc5d28a1eac259bd816986818157056-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA SLIM LONG X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_slim_long_bila-2d0f89f0aa5999261616986817170016-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA REGULAR X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_regular_200_bila-96c3297ca17bcb0c6916986803936252-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA EXTRA SLIM X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_extra_slim_200_bi-3f3fed37847679c1c516986811998883-640-0.webp"
+  },
+  {
+    name: "FILTRO LIBELLA BIO SLIM X200",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_slim_havana_200_b-8f032cdae2652ff8b916986817742208-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH XL SLIM X100",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-57-23-5ac12f0273786e830616984690557378-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH XL SLIM BIO X 120",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-59-41-04ab756317d045821516984691962456-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH SLIM X 150",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-57-58-a76921a35063a1b31216984690888044-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH SLIM MENTHOL X 120",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/gizeh-1-00105c7a0496610457169845350709441-f37cadc872e059ea1f16984535173046-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH PARA FLORES X 10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-02-00-30-3d3fd4ae9f65981242169846925060901-c0c95ea00c1acaca4116984692537624-640-0.webp"
+  },
+  {
+    name: "FILTRO GIZEH EXTRA SLIM X 150",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-58-31-08fa6695218110c236169846912346931-9245868c586c7089a116984691318402-640-0.webp"
+  },
+  {
+    name: "FILTRO DRPIN SLIM X150",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-drpin-slim-x150-0c328f995ca9ab65c216990289709461-640-0.webp"
+  },
+  {
+    name: "FILTRO DRPIN REGULAR X100",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/filtro-drpin-regular-x100-c8ee1d9f3fd5220a6016990289837080-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ZEUS USB",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-zeus-usb-9617a07aa19603eef516985085266201-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR MAGICLICK TRANSPARENTE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-magiclick-transparente-4a4959f26a15e7d44316985283852638-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR MAGICLICK SOPLETE TORCH",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-18-26-55-854d2325ba27a2993616985284220119-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR MAGICLICK PARTY",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-18-17-08-7df5b431016447726916985278485629-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR MAGICLICK CIGAR CATALITICO OPACO/TRANSPARENTE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-magiclick-cigar-catalitico-opacotransparente-f37629098b941d550f16985287434582-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR LINTERNA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-02-25-34-b27717002d5c84c50d16984707689630-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRONICO MAGICLICK TURBO GOMA BLACK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electronico-magiclick-turbo-goma-black-5280c241ac078c2a50169852864114931-e4438ff76b24705fc216985286868744-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRONICO MAGICLICK SLIDE GOMA NEON",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electronico-magiclick-slide-goma-neon-1a430caa6793b276f016985287079370-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRONICO MAGICLICK POP SOLIDO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electronico-magiclick-pop-solido-39aec4281789d44b1116985285116051-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRONICO MAGICLICK POP NEON",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-18-27-47-c0c3e8b6797b1e54eb169852849474711-fd70b8598c91b256e116985285120933-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRICO 3 RAYOS WAIKO MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electrico-3-rayos-waiko-mix-6ee515a0ed4da5df6016990292845522-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRICO 3 RAYOS URBAN MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electrico-3-rayos-urban-mix-03d0c84805ac9819ad16990292996534-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRICO 3 RAYOS TECNO MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electrico-3-rayos-tecno-mixs-33883607c26f79d4ec16990293183461-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRICO 3 RAYOS LUCKY MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electrico-3-rayos-lucky-mix-f521890af46fbf516b16990293370615-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR ELECTRICO 3 RAYOS FUN MIX",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-electrico-3-rayos-fun-mix-af2865d0b063506e39169902935036961-0a43403fa7acd3dec816990293602771-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CON LINTERNA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-13-34-20-927573075bf09c7b4e16990292663584-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CLIPPER LION ROLLING CIRCUS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-clipper-lion-rolling-circus-bb7dc5598b5bd619ca16985154493475-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CLIPPER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-13-37-00-720eb11e19ef5c92b2169902942691291-79208e6800a00449b916990294388414-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK VIP SOLIDO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/magiclickk-52423da84efc7deb5516985285819818-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK VIP BLACK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-vip-black-c1b48c59ec5364470816985285253155-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK VIP",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-vip-9c7b93c4f6aa94f644169852836145091-8fbc947d138c322ba216985283739048-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK TURBO SOLIDO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-turbo-solido-2500313ea5ba227fcc16985285638833-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK MONKEY PREMIUM",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-monkey-premium-4e8462afba8299bcf616985286251072-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK MONKEY NEON",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-monkey-neon-d79991505560cdb50416985284425543-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CATALITICO MAGICLICK GOLD AND SILVER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-catalitico-magiclick-gold-and-silver-c407dbcb6c2ff2bd7216985287259906-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR CANDELA SOPLETE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-candela-soplete-1a37e39fbb9f6a684816990296157311-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR BIC MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-bic-mini-6e33ee88e81c503f88169902963156791-e2d0203740c830228916990296352131-640-0.webp"
+  },
+  {
+    name: "ENCENDEDOR BIC GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/encendedor-bic-grande-fa0ea8eabe58c7283616990296455657-640-0.webp"
+  },
+  {
+    name: "CORTA HABANO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/corta-habano-6e2603800ef1065b1116990296597735-640-0.webp"
+  },
+  {
+    name: "COMBI ROLL LIBELLA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/combi-roll-libella-32f794927f3a50756616986804622633-640-0.webp"
+  },
+  {
+    name: "CIGARRO YACARE X 4 UNIDADES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-02-27-42-7b6f1f4794a90a2f8f16984708828443-640-0.webp"
+  },
+  {
+    name: "CIGARRO VILLIGER PREMIUM N?7 SUMATRA X5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-villiger-premium-n7-b2193b70a1f1b6d44316983838075579-640-0.webp"
+  },
+  {
+    name: "CIGARRO VILLIGER CLASSIC EXPORT X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-villiger-classic-export-x-5-db4e5bf0fd82b987b116983838314414-640-0.webp"
+  },
+  {
+    name: "CIGARRO SAINTS X 5 CUARTA CORONA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-saints-x-5-cuarta-corona-79de125440fd3f190216983838748085-640-0.webp"
+  },
+  {
+    name: "CIGARRO SAINTS X 5 CORONA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-saints-x-5-corona-dafef699592dc26c9716983839022356-640-0.webp"
+  },
+  {
+    name: "CIGARRO SAINTS CUARTA CORONA X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-saints-x-5-cuarta-corona-06ce913351ea7185e216983839339630-640-0.webp"
+  },
+  {
+    name: "CIGARRO SAINTS CORONA X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-saints-x-5-corona-5b2c2f2e9701f3efd816983839633872-640-0.webp"
+  },
+  {
+    name: "CIGARRO PRINCIPES CORONA RED X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-principes-corona-red-7c417622c6b5747db916983840358227-640-0.webp"
+  },
+  {
+    name: "CIGARRO PRINCIPES CORONA ORIGINAL X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-principes-corona-original-522546dd44b7f8b2e916983840581212-640-0.webp"
+  },
+  {
+    name: "CIGARRO PRINCIPES CORONA CARIBBEAN X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-principes-corona-caribbean-db37cfd6d0f79178fb16983840799443-640-0.webp"
+  },
+  {
+    name: "CIGARRO PRINCIPES CORONA BROWN X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/principes-corona-brown-0fc47d27e8eba3e34116983841381887-640-0.webp"
+  },
+  {
+    name: "CIGARRO PRINCIPES CORONA BLOND X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-principes-corona-blond-2a8ba87ffbb6082ca516983842273707-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES TITAN CONAC X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-titan-conac-x-5-9b4e6dfa730b12f44e16983842582160-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES TITAN CLASICO X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-titan-clasico-8b2ed22754879fa29616983855737899-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES TITAN CHOCOLATE X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-titan-chocolate-x-5-d57270318b663142af16983855955903-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES BLUNT VAINILLA X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-blunt-vainilla-x-5-389ca6521fff79015d16983856120849-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES BLUNT MIEL X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-blunt-miel-x-5-54a038c649f5839cea16983856304531-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES BLUNT CONAC X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-blunt-conac-x-5-1e9c79a90b1e975f3816983856473293-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES BLUNT CLASICO X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-blunt-clasico-x-5-1df0d8e74aa532bb4816983856624538-640-0.webp"
+  },
+  {
+    name: "CIGARRO PHILLIES BLUNT CHOCOLATE X 5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-phillies-blunt-chocolate-x-5-423c8abeea68bbc67916983856793455-640-0.webp"
+  },
+  {
+    name: "CIGARRO MONTEAGUDO ROBUSTO X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-monteagudo-robusto-x-unidad-feeb601651b5ee816516983856968813-640-0.webp"
+  },
+  {
+    name: "CIGARRO MONTEAGUDO ESPLENDIDO X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-monteagudo-robusto-x-unidadpng-3f6d78bec93ceb63d716983857212995-640-0.webp"
+  },
+  {
+    name: "CIGARRO J.CORTES CORONA SUMATRA X 2",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-j-cortes-corona-sumatra-x-2-0d04c44ff0f7a4b24416983857423575-640-0.webp"
+  },
+  {
+    name: "CIGARRO J.CORTES CORONA HONDURAS X 2",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-j-cortes-corona-honduras-x-2-50b4d51b20ac1e26b416983857592792-640-0.webp"
+  },
+  {
+    name: "CIGARRO J.CORTES CORONA DOMINICAN X 2",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-j-cortes-corona-dominican-c19e9fbc05d946bebb16983858742123-640-0.webp"
+  },
+  {
+    name: "CIGARRO GUANTAMERA CRISTAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/guantanameracristalesx101-fb0e6b-1b718bf79e91bb090c16983859670756-640-0.webp"
+  },
+  {
+    name: "CIGARRO GOOD TIMES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-good-times-cdb9376aa9166017fe16983859866166-640-0.webp"
+  },
+  {
+    name: "CIGARRO CIENFUEGOS ORIGINAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-cienfuegos-original-7801a9662acb26443f16983860033701-640-0.webp"
+  },
+  {
+    name: "CIGARRO CIENFUEGOS ESPLENDIDO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-cienfuego-esplendido-136a4e82d60841283716983860292580-640-0.webp"
+  },
+  {
+    name: "CIGARRO BELGRANO 10",
+    img: ""
+  },
+  {
+    name: "CIGARRO AMADEUS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-amadeus-a8338ddfce5122d18116983860561792-640-0.webp"
+  },
+  {
+    name: "CIGARRITOS PRINCIPES MINIATURA RED X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/principes-miniatura-red-11477c8fd899d8f760169838614109221-e85df6b8aeb6e8720b16983861470313-640-0.webp"
+  },
+  {
+    name: "CIGARRITOS PRINCIPES MINIATURA ORIGINAL X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarritos-principes-miniatura-original-x-unidad-70007a41d61302091816983861627047-640-0.webp"
+  },
+  {
+    name: "CIGARRITOS PRINCIPES MINIATURA CARIBBEAN X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarro-principes-corona-caribbean-9e93b8e867fdfe7b1d169838618301551-8783d0ac074035882b16983861897626-640-0.webp"
+  },
+  {
+    name: "CIGARRITOS PRINCIPES MINIATURA BROWN X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarritos-principes-miniatura-brown-a63d237e66987aad6b16983862086792-640-0.webp"
+  },
+  {
+    name: "CIGARRITOS PRINCIPES MINIATURA BLOND X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarritos-principes-miniatura-blond-ef95f580dd1a22663616983862220900-640-0.webp"
+  },
+  {
+    name: "CIGARRITO VILLIGER WHITE X 20 UNI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-villiger-white-x-20-a8f60d97da29397ebc16983863370910-640-0.webp"
+  },
+  {
+    name: "CIGARRITO VILLIGER RED X 20 UNI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-villiger-red-x-20-9db2c6f2d721d2333e169838635708411-619731d2c9ccf4a77a16983863614334-640-0.webp"
+  },
+  {
+    name: "CIGARRITO VILLIGER GREEN X 20 UNI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/villiger-green-9097e32dd28116bffb16983864248941-640-0.webp"
+  },
+  {
+    name: "CIGARRITO VILLIGER GOLD X 20 UNI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-villiger-gold-x-202-8e341c8dae7c401ec716983864480382-640-0.webp"
+  },
+  {
+    name: "CIGARRITO VILLIGER BLACK X 20 UNI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-villiger-black-x-20-6fa74baaf8d757a4c316983864636899-640-0.webp"
+  },
+  {
+    name: "CIGARRITO PARTAGAS CHICO X 25 UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-partagas-chico-x-25-unidad-83b446b0766ec4c24a16983864819193-640-0.webp"
+  },
+  {
+    name: "CIGARRITO PACIFIC X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-pacific-x-unidad-6d0258314b434b2f0f169838651352731-387b0d04422ab86da916983865191997-640-0.webp"
+  },
+  {
+    name: "CIGARRITO PACIFIC BLUE X 10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pacific-blue-7220a97985281e55d116983865740178-640-0.webp"
+  },
+  {
+    name: "CIGARRITO NEOS WHITE MINI X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-03-09-21-c39b3289d3641b3eb316984733926003-640-0.webp"
+  },
+  {
+    name: "CIGARRITO NEOS SELECTION X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-neos-selection-x-unidad-fa50081a93630da41716983866012725-640-0.webp"
+  },
+  {
+    name: "CIGARRITO NEOS RED MINI X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-neos-red-mini-x10-76e6caf144854c939416983866190862-640-0.webp"
+  },
+  {
+    name: "CIGARRITO NEOS JAVA MINI X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-neos-java-mini-x10-39d6f8d5b1da9a1cbd16983866369989-640-0.webp"
+  },
+  {
+    name: "CIGARRITO NEOS BROWN MINI X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-neos-brown-mini-x10-939c3a7a86ce35828a16983867099975-640-0.webp"
+  },
+  {
+    name: "CIGARRITO HANDELSGOLD VAINILLA X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-handelsgold-vainilla-x-unidad-b6d8e2a3ce1c5144b516983867231575-640-0.webp"
+  },
+  {
+    name: "CIGARRITO HANDELSGOLD CLASICO X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/untitled-972655b267447e309016983867633511-640-0.webp"
+  },
+  {
+    name: "CIGARRITO HANDELSGOLD CHOCOLATE X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/handelsgold-chocolate-f77e7f1f68d1444e6a16983868026009-640-0.webp"
+  },
+  {
+    name: "CIGARRITO GABRIELA VAINILLA X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/gabriela-vainilla-28ed12c2349908fd8c16983868715599-640-0.webp"
+  },
+  {
+    name: "CIGARRITO GABRIELA VAINILLA X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-gabriela-vainilla-x-unidad-0315790b3324fd11ff16990298177424-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CLUBMASTER RED X20",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-clubmaster-red-x20-4cf002554b76c422fb16983872981381-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CLUBMASTER BROWN X20",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-clubmaster-brown-x20-35fea234e92870d2f016983873123860-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CLUBMASTER BRAZIL X20",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-clubmaster-brazil-x20-ec4b467b798e69b98c16983873269039-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CLUBMASTER BLUE X20",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-clubmaster-blue-x20-8d32aca184d1e2884a16983873417895-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CAFE CREME RED X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-cafe-creme-red-x10-8e64cf58726f515ac316983875084809-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CAFE CREME ORIGINAL X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-cafe-creme-original-x10-552788674473adb692169838752462231-06de81b565aa09fc3316983875296787-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CAFE CREME BROWN X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-cafe-creme-brown-x10-64e71e7a3b8ed382d516983875489775-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CAFE CREME BLUE X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-cafe-creme-blue-x10-800891ba121082fc2e169838756603971-c4fd551953c794967016983875733187-640-0.webp"
+  },
+  {
+    name: "CIGARRITO CAFE CREME BEIGE X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cigarrito-cafe-creme-beige-x10-7ad51aa65f6eaee31416983875891964-640-0.webp"
+  },
+  {
+    name: "CIGARRERA ATOMIC ONOMATOPEYAS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/group-284-5db47b00da03a6913c169903001032961-9520e2a18d2a16ef2216990300183427-640-0.png"
+  },
+  {
+    name: "CENICERO SQUADAFUM AUTO/LANCHA",
+    img: "https://http2.mlstatic.com/D_NQ_NP_707437-MLA74482210819_022024-O.webp"
+  },
+  {
+    name: "CENICERO RAW",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_608935-mla71524822157_09-1-6ebe90b7833a16d6ef16985103768457-640-0.webp"
+  },
+  {
+    name: "CENICERO LION",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cenicero-lion-4551b313798f144eb616985150244601-640-0.webp"
+  },
+  {
+    name: "CENICERO GIZEH",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/2730-8ca249c5e7fccb93d416984521278616-640-0.webp"
+  },
+  {
+    name: "CENICERO DE BOLSILLO",
+    img: ""
+  },
+  {
+    name: "CENICERO 3RAYOS CON TAPA IMANTADA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/img_3750-5580705b83fac5131816963-9e98133c862a99604816986719098828-640-0.webp"
+  },
+  {
+    name: "CENICERO 3RAYOS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/cenicero-3rayos-ffdf9bc10fb833025216986709873887-640-0.webp"
+  },
+  {
+    name: "CELULOSA ZEUS X300",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-zeus-x300-fc8e3b357cca76bedb16985082038049-640-0.webp"
+  },
+  {
+    name: "CELULOSA ZEUS MAS ANCHA KING SIZE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-zeus-mas-ancha-king-size-9da51db1c29f0d1d9316985095673098-640-0.webp"
+  },
+  {
+    name: "CELULOSA ZEUS MAS ANCHA 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-13-10-09-58117aebf0ec7a34ee16985094166008-640-0.webp"
+  },
+  {
+    name: "CELULOSA ZEUS COLORES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-zeus-colores-568ab2c5e3fd247c9916985085130436-640-0.webp"
+  },
+  {
+    name: "CELULOSA TONKING 78 mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tonkig-p-celulosa-2-a8c38ecfa54d81aa9116985128355144-640-0.webp"
+  },
+  {
+    name: "CELULOSA STAMP",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-stamp-e040350e339c5d3c9a169903013879531-3265a7c9dc2e6a748216990301436256-640-0.webp"
+  },
+  {
+    name: "CELULOSA SATIVA SABOR/COLOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-sativa-saborcolor-5455987682bff455b516990302032985-640-0.webp"
+  },
+  {
+    name: "CELULOSA ROK X300",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-34-34-0196f0f37bbc03425916984496849923-640-0.webp"
+  },
+  {
+    name: "CELULOSA ROK KING SIZE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-50-34-e5201d3602cdae0a8716984506507753-640-0.webp"
+  },
+  {
+    name: "CELULOSA ROK 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/rok-celulosa-regular1-3ad036bff3-2ae453e5f3a2fbd64816984509135585-640-0.webp"
+  },
+  {
+    name: "CELULOSA MOON 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-moon-78mm-4f9dfabe8cf515314616986724630087-640-0.webp"
+  },
+  {
+    name: "CELULOSA LION KING SIZE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-lion-king-size-159d63a0aa8a07664e169851519340771-bdbfd93fc8b95eaf4816985152084836-640-0.webp"
+  },
+  {
+    name: "CELULOSA LION 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-lion-78mm-e2923dfaf1702c2c6816985151388616-640-0.webp"
+  },
+  {
+    name: "CELULOSA 3RAYOS 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-3rayos-78mm-dsd-c2c729e9a52a052a3216986715904701-640-0.webp"
+  },
+  {
+    name: "CELULOSA 3RAYOS 420 BLOCK",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/celulosa-3rayos-420-block-e-d354a3c385781fe45f16986717014317-640-0.webp"
+  },
+  {
+    name: "CARBON ZEUS 100%MADERA BAMBOO X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/carbon-zeus-100madera-bamboo-x10-c5fa120b83f722cb5516985097608014-640-0.webp"
+  },
+  {
+    name: "CAJA MAGICLICK CIGAR CATALITICO X 10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/caja-magiclick-cigar-catalitico-x-10-c0a8c18ee00ae2ec5416985286574701-640-0.webp"
+  },
+  {
+    name: "CAJA FILTROS LIBELLA REGULAR LONG X10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/libella_filtry_long_regular_200-7aa2a10af0e132750e16986818529546-640-0.webp"
+  },
+  {
+    name: "CAJA DE PAPEL OCB X-PERT X 25",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/don-juan-tabaco-papel-ocb-xpert-04a9fb2d07ec102ddf16990282190690-640-0.webp"
+  },
+  {
+    name: "CAJA DE PAPEL OCB VIRGEN X 25",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/caja-de-papel-ocb-virgen-x-25-2a057a5d25c84c70cc16990283139302-640-0.webp"
+  },
+  {
+    name: "CAJA CIGARRITO PACIFIC X 50",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/caja-cigarrito-pacific-x-50-cdc6ea4e83c08126ea16983876420570-640-0.webp"
+  },
+  {
+    name: "CAJA CIGARRITO NEOS X 50",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/caja-cigarrito-neos-x-50-507336c0930acc00c516983877469655-640-0.webp"
+  },
+  {
+    name: "CABURITOS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/caburitos-321c2a2c7827e20b9816983877987510-640-0.webp"
+  },
+  {
+    name: "BOQUILLAS DAVID ROSS X 10",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/540-593d80ddd4e6cafba316990318799405-640-0.webp"
+  },
+  {
+    name: "BOQUILLA MINIFUSOR 2030",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/boquilla-minifusor-7d5f69903accc8e16c16990319515759-640-0.webp"
+  },
+  {
+    name: "BONG ACRILICO MINI COLORES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bong-acrilico-mini-colores-15415cdf09d7b85d9416990319877586-640-0.webp"
+  },
+  {
+    name: "BLUNT WRAP X 2",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/blunt-wrap-x-2-35b59fc98dd93e193516990320370665-640-0.webp"
+  },
+  {
+    name: "BLUNT ROYAL X UNIDAD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-14-22-18-e49c44eb1cf69472fa16990322456144-640-0.webp"
+  },
+  {
+    name: "BLUNT LION HEMP WRAPS TERPENES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/blunt-lion-hemp-wraps-terpenes-d69a26a088a0a51e7416985154832692-640-0.webp"
+  },
+  {
+    name: "BLUNT LION HEMP WRAPS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/blunt-lion-hemp-wraps-13c9bba338ce49e2dc16985150569841-640-0.webp"
+  },
+  {
+    name: "BENCINA ZIPPO P/ENCENDEDOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bencinazippi-e463c18cb54b05de1817003189644526-640-0.webp"
+  },
+  {
+    name: "BENCINA LLAMITA P/ENCENDEDOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/group-284-1-4f011c6d2a226c9b1016990323194187-640-0.webp"
+  },
+  {
+    name: "BANDEJA TUQUEROS420 CON TAPA IMANTADA ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/tuqueros-slider-7e79fa52cddbc7588f16990323790185-640-0.webp"
+  },
+  {
+    name: "BANDEJA SMOKING MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-36-40-275cfd320a494c245216985074062926-640-0.webp"
+  },
+  {
+    name: "BANDEJA ROK MEDIANA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-46-20-3a330b81e618f600b216984504454505-640-0.webp"
+  },
+  {
+    name: "BANDEJA ROK GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-46-59-6d16543d8c66beb69216984504807489-640-0.webp"
+  },
+  {
+    name: "BANDEJA RAW MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bandeja-raw-mini-b53a294b49a1ab0002169851079091561-c0b33b735e96f93d0416985108131049-640-0.webp"
+  },
+  {
+    name: "BANDEJA LION MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bandeja-lion-mini-bb3d3ae3ef45638f86169851537015971-74788397e89c1f25c516985153800868-640-0.webp"
+  },
+  {
+    name: "BANDEJA LION MEDIANA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bandeja-lion-medianav-a3adc49bc77e99650a169851523035331-b89fef94db2b9112ff16985152665560-640-0.jpg"
+  },
+  {
+    name: "BANDEJA LION GOLD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bandeja-lion-gold-3c3899aa37b1f9582c16985153998229-640-0.webp"
+  },
+  {
+    name: "BANDEJA 3RAYOS MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/bandeja-3rayos-mini2-ff97b2a2d4c6ea888716986714315371-640-0.webp"
+  },
+  {
+    name: "BALANZA DE PRECISION",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/balanza-de-precision-de6dc8f5d2b615dba616990324287246-640-0.webp"
+  },
+  {
+    name: "ARMADOR TONKING ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-tonking-acrilico-3f82d2075e96a1b10a169851278403801-ed30e7b404ff71322e16985127885515-640-0.webp"
+  },
+  {
+    name: "ARMADOR SMOKING METAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-smoking-metal-eca703eb5940d1359516985074318782-640-0.webp"
+  },
+  {
+    name: "ARMADOR SMOKING ACRILICO 70 mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-smoking-acrilico-70-mm-b945b65b401b358bbf169850782086441-9bdc792c690c6bd4c016985078240711-640-0.webp"
+  },
+  {
+    name: "ARMADOR SMOKING ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-smoking-acrilico-70-mm-de1b3b631beaa2b6a216985073746953-640-0.webp"
+  },
+  {
+    name: "ARMADOR ROK PLASTICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-27-at-20-40-46-541adda64b4340e7ea16984500914885-640-0.webp"
+  },
+  {
+    name: "ARMADOR RAW AJUSTABLE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-raw-ajustable-d773aa965460a5b38d169851076453781-b46a916c4fba3ab06e16985107817019-640-0.jpg"
+  },
+  {
+    name: "ARMADOR LION KING SIZE ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-lion-king-size-acrilico-b7bc2272bcb834ebc716985154352370-640-0.webp"
+  },
+  {
+    name: "ARMADOR LION ACRILICO 78mm",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-lion-acrilico-78mmc-83d6fc09627b726cf116985152096595-640-0.webp"
+  },
+  {
+    name: "ARMADOR KIT CONO TAMANO S - L - M",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-kit-cono-tamano-s-l-m-1870901e8f64bc0a8116990324694989-640-0.webp"
+  },
+  {
+    name: "ARMADOR GIZEH GIRO ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-54-42-d82328b080dc3ee8e916984689037854-640-0.webp"
+  },
+  {
+    name: "ARMADOR DRPIN ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-drpin-acrilico-22f9349c1ce13e1bcf16990325143127-640-0.webp"
+  },
+  {
+    name: "ARMADOR AUTOMATICO ZEUS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-automatico-zeus-e715d951e383f25de516985082317615-640-0.webp"
+  },
+  {
+    name: "ARMADOR AUTOMATICO SMOKING",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/armador-automatico-smoking-c0fa22f2005b29882216985077399545-640-0.webp"
+  },
+  {
+    name: "828 BONG VIDRIO COLORES 37CM",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/828-bong-vidrio-colores-37cm-ac05db139a5e0882fd16990325872034-640-0.webp"
+  },
+  {
+    name: "805 PIPA ATOMIC 2 ESFERAS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-14-30-59-d7e0e29bbec16e52fe16990326671839-640-0.webp"
+  },
+  {
+    name: "804 PIPA VIDRIO PIREX ATOMIC",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/16552149064815c0c96b0be15cae89b5-92a156fece1b0d469c16990239446718-640-0.webp"
+  },
+  {
+    name: "779 PIPA ALUMINIO BRONCE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pipa-metal-aluminio-venta-1940d763f809c3350216990250815102-640-0.webp"
+  },
+  {
+    name: "739 PIPA 4 ESFERAS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-12-22-31-d9bc0dbb04b5e9d14116990249585664-640-0.webp"
+  },
+  {
+    name: "7104 PICADOR LION PLASTICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7104-picador-lion-plastico-4d8b94e2a0d1ec7f3b169851535405331-529e7292a31c9a39eb16985153603510-640-0.webp"
+  },
+  {
+    name: "7004 PICADOR LION METAL GOLD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7004-picador-lion-metal-gold-3e921168d45ab825b016985154969502-640-0.webp"
+  },
+  {
+    name: "7003 PICADOR LION METAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7003-picador-lion-metal-8d27b8befe33f219ce16985153845615-640-0.webp"
+  },
+  {
+    name: "7002 PICADOR LION METAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7002-picador-lion-metal-c2f400ac4120c68fa416985152872643-640-0.webp"
+  },
+  {
+    name: "7001 PICADOR LION METAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/7001-picador-lion-metal-b2a4ef5417182dd5bb16985150727667-640-0.webp"
+  },
+  {
+    name: "5697 ENCENDEDOR CATALITICO ZENGAZ DOUBLE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/5697-encendedor-catalitico-zengaz-double-d47636adc5d739214216990336696063-640-0.webp"
+  },
+  {
+    name: "5696 ENCENDEDOR CATALITICO ZENGAZ CALAVERA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/5696-encendedor-catalitico-zengaz-calavera-41fb16728851febd4016990336852325-640-0.webp"
+  },
+  {
+    name: "5692 ENCENDEDOR CATALITICO ZENGAZ STAMP",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/5692-encendedor-catalitico-zengaz-stampdd-6be3b06cbe16439c9416990337064106-640-0.webp"
+  },
+  {
+    name: "5690 ENCENDEDOR CATALITICO ZENGAZ ENGOMADO SIMPLE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/5690-encendedor-catalitico-zengaz-engomado-simple-d72d04dfd522624f7516990337273264-640-0.webp"
+  },
+  {
+    name: "535 PICADOR PLASTICO ATOMIC",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/535-picador-plastico-atomic-768ce04c59c6fa002316990336540819-640-0.webp"
+  },
+  {
+    name: "534 PICADOR ATOMIC METAL CUADRADO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/534-picador-atomic-metal-cuadrado-d4741d9e15fc82da2616990337599731-640-0.webp"
+  },
+  {
+    name: "530 PICADOR METAL CHROME",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/530-picador-metal-chrome-d9491ae49a4414766c16990338139447-640-0.webp"
+  },
+  {
+    name: "519 PICADOR ATOMIC METAL NEGRO CON BANDA DE COLOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-14-51-41-d02b4e5ec3ebd1b56816990339069408-640-0.webp"
+  },
+  {
+    name: "512 PICADOR ACRILICO CHALAS 4PARTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/512-picador-acrilico-chalas-4partes-a696a29502b8fb2c5a16990339657852-640-0.webp"
+  },
+  {
+    name: "504 PICADOR ATOMIC METAL SOMEWHERE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-14-57-50-01cb2aa3c31ba9621716990343426287-640-0.webp"
+  },
+  {
+    name: "498 PICADOR METAL ATOMIC",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/498-picador-metal-atomic-16f34a5b25ddcef8d316990356588221-640-0.webp"
+  },
+  {
+    name: "466 PICADOR PLASTICO JAMAICA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/466-picador-plastico-jamaica-2-350ce6b8e87b30f02816990357937775-640-0.webp"
+  },
+  {
+    name: "464 PICADOR ATOMIC METAL",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/498-picador-metal-atomic-9af9aa8b799ba5d67316990358372382-640-0.webp"
+  },
+  {
+    name: "457 PICADOR WOOD",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/457-picador-wsdsdood-da46155f3366cff4a116990360231498-640-0.webp"
+  },
+  {
+    name: "368 PICADOR METAL ATOMIC MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/368-picador-metal-atomic-mini-41fc9092d0032ef8bf16990360610375-640-0.webp"
+  },
+  {
+    name: "2419 PICADOR PLASTICO RUBBER",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-15-28-22-fcb22696c29556fd1816990361180508-640-0.webp"
+  },
+  {
+    name: "141 PICADOR METAL GIZEH",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-01-50-53-c31ecf7a0cf2d7c5cd16984687028407-640-0.webp"
+  },
+  {
+    name: "140 PICADOR METAL GIZEH MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-02-02-23-2b3e6fb9d4c5c206df16984694452963-640-0.webp"
+  },
+  {
+    name: "13462 PICADOR ZEUS ACRILICO MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13462-picador-zeus-acrilico-mini-f43d2bd0beb69073c816985087395443-640-0.webp"
+  },
+  {
+    name: "13461 NARGUILLE ZEUS GRANDE ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13461-narguille-zeus-grande-acrilico-83b4cf2abbf936b92716985085994472-640-0.webp"
+  },
+  {
+    name: "1335A PICADOR ZEUS 2 EN 1",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/1335a-picador-zeus-2-en-1-62e369ff205cebb03116985096068763-640-0.webp"
+  },
+  {
+    name: "13349 PICADOR ZEUS 2 EN 1",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13349-picador-zeus-2-en-1-c9b45c6c22d63c131a16985094738828-640-0.webp"
+  },
+  {
+    name: "13340 BANDEJA ZEUS CON TAPA MEDIANA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13340-bandeja-zeus-con-tapa-mediana-c4839552ba93c8e02416985095020368-640-0.webp"
+  },
+  {
+    name: "13313 TURBINA D&K",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/1305_dsc_0070_copy-ac76f5ff964d22120716990363584933-640-0.webp"
+  },
+  {
+    name: "13222 CIGARRERA ZEUS CALAVERA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13222-cigarrera-zeus-calavera-c562158c291430090b16985084917789-640-0.webp"
+  },
+  {
+    name: "13194 TURBINA COLOR METAL GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/13194-turbina-color-metal-grandes-af8381033f65fedbca16990364037612-640-0.webp"
+  },
+  {
+    name: "12460 PICADOR ALUMINIO RAINBOW CHICO 4 PTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/12460-picador-aluminio-rainbow-chico-4-ptes-5fefbbfaa8f1cfcd1816990364547753-640-0.webp"
+  },
+  {
+    name: "12460 PICADOR ALUMINIO RAINBOW 4 PTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/12460-picador-aluminio-rainbow-4-ptes-5447fd0fdc3c1e64c816990364856866-640-0.webp"
+  },
+  {
+    name: "12427 PICADOR ZEUS HEMP 4 PARTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/12427-picador-zeus-hemp-4-partes-9b70c41543e15fc9e616985095158201-640-0.webp"
+  },
+  {
+    name: "12426 PICADOR ZEUS HEMP 3 PARTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/12426-picador-zeus-hemp-3-partes-ddfadcd5eca35890ab16985095299537-640-0.webp"
+  },
+  {
+    name: "12425 PICADOR ZEUS HEMP 2 PARTES",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/12425-picador-zeus-hemp-2-partes-a3a7334fbf69281efb16985094878908-640-0.webp"
+  },
+  {
+    name: "12423 PAPEL DOLAR HONEYPUFF KING SIZE + TIPS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/s-cbbfa3ae6a88f54d7c16990365750115-640-0.webp"
+  },
+  {
+    name: "12422 PAPEL DOLAR HONEYPUFF KING SIZE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/s-56014e98b3e4fb773416990366080620-640-0.webp"
+  },
+  {
+    name: "123001 PICADOR ZEUS USB CADENA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/123001-picador-zeus-usb-cadena-137cc8c6a1c32593f016985087529221-640-0.webp"
+  },
+  {
+    name: "122561 ENCENDEDOR HONEST PARA PIPA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/s55471d99e1f645e89a0dfd5d8e0148b-ec155ca7e79b0bf3e316990258171296-640-0.webp"
+  },
+  {
+    name: "121230 PICADOR ZEUS BIODEGRADABLE 2PARTES CON CONTENEDOR",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-10-28-at-12-56-11-367907203dcff662d816985085781381-640-0.webp"
+  },
+  {
+    name: "121021 LATA ZEUS CON TAPA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/121021-lata-zeus-con-tapa-61f6b1b6d1702a79ad16985094330734-640-0.webp"
+  },
+  {
+    name: "11801 NARGUILE ZEUS GRANDE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/11801-narguile-zeus-grande-8db4f381a8dab8358d16985082171972-640-0.webp"
+  },
+  {
+    name: "11435A TABAQUERA LATA ZEUS",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/11435a-tabaquera-lata-zeus-0e5a9aafa4ce63f3e816985082856819-640-0.webp"
+  },
+  {
+    name: "11268 CENICERO ESCONDE CENIZA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/d_nq_np_2x_791077-mla45470347322-1c66a52d76e6ffc37b16990366539598-640-0.webp"
+  },
+  {
+    name: "11024 NARGUILE ZEUS MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/11024-narguile-zeus-mini-6ed3a9bffd0fb80b8816985082722047-640-0.webp"
+  },
+  {
+    name: "11015 PIPA TUQUE",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-12-06-46-f069197676867be900169902404395911-76959f78a97c3fb30f16990240479961-640-0.webp"
+  },
+  {
+    name: "11010 PICADOR PLASTICO SUPER MINI",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/11010-picador-plastico-super-mini-54fda26578333f2be916990367527005-640-0.webp"
+  },
+  {
+    name: "11003 PICADOR METAL HEXAGONO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/11003-picador-metal-hexagonowss-06a4673c9277f9bca916990367315889-640-0.webp"
+  },
+  {
+    name: "10998A PICADOR ZEUS ACRILICO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/10998a-picador-zeus-acrilico-f07a59505456021df1169850819230521-c29f409a4e89478d8d16985081960525-640-0.webp"
+  },
+  {
+    name: "10955 PIPA INDIA",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pipa-madera-india-6700813b93c30673fc16989424616850-640-0.webp"
+  },
+  {
+    name: "10822 ENCENDEDOR A BENCINA LISO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/screenshot-2023-11-03-at-15-40-23-c041caf0c5b8361b1816990368293861-640-0.webp"
+  },
+  {
+    name: "10580 PIPA MARTILLO LLAVERO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pipa-metal-llaveo-martillo1-b93f-1-196bd073bea103436716990254756378-640-0.webp"
+  },
+  {
+    name: "10569 PIPA HONGO/LLAVERO",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/pipa-hongo-metal-llavero-3_tomac-d401ecf80dc22544ec16990252834887-640-0.webp"
+  },
+  {
+    name: "10473 REJILLA PARA PIPAS X5",
+    img: "https://acdn.mitiendanube.com/stores/003/710/909/products/10473-rejilla-para-pipas-x5-0dcb82ee2f5b1ee85f16990368858191-640-0.webp"
+  }
+]
+        const itemsPerPage = 9;
+        const separatorFrequency = 5;
+        const separatorImage = 'https://acdn.mitiendanube.com/stores/003/710/909/themes/toluca/2-img-47346877-1719630982-1d9fa59fce7c1f02b6c04eb34b1f1b0d1719630983-1920-1920.webp?1561706835'; // Placeholder for cover image
+        const pagesContainer = document.getElementById('pages-container');
+
+        function createProductGrid(products) {
+            const grid = document.createElement('div');
+            grid.className = 'product-grid';
+
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.innerHTML = `
+                    <img src="${product.img}" alt="${product.name}">
+                    <p>${toCamelCase(product.name)}</p>
+                    <div class='pricefield'></div>
+                `;
+                grid.appendChild(productDiv);
+            });
+
+            return grid;
+        }
+
+        function createPage(products) {
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.appendChild(createProductGrid(products));
+            pagesContainer.appendChild(page);
+        }
+
+        function createSeparatorPage() {
+            const separatorPage = document.createElement('div');
+            separatorPage.className = 'page cover-page';
+            separatorPage.innerHTML = `<img src="${separatorImage}" alt="Separator Cover">`;
+            pagesContainer.appendChild(separatorPage);
+        }
+
+        function paginateProducts(products, itemsPerPage, separatorFrequency) {
+            let pageCount = 0;
+            for (let i = 0; i < products.length; i += itemsPerPage) {
+                createPage(products.slice(i, i + itemsPerPage));
+                pageCount++;
+                if (pageCount % separatorFrequency === 0 && i + itemsPerPage < products.length) {
+                    createSeparatorPage();
+                }
+            }
+        }
+
+        paginateProducts(products, itemsPerPage, separatorFrequency);
+    </script>
+</body>
+</html>
